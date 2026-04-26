@@ -1,3 +1,7 @@
+## Coordination — read first
+
+**Before doing any work, read `HANDOFF.md`.** It's the living log of what's in flight, what interfaces have been agreed on, and what's blocking each side. **Update it whenever you finish work, hit a blocker, or change a shared interface** — the other agent's next session depends on it.
+
 ## Tech Stack
 - Runtime: Node.js 22.x
 - Language: TypeScript (strict mode)
