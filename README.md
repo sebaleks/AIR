@@ -1,6 +1,6 @@
-# SenseRoute
+# AIR
 
-**SenseRoute is a lightweight decision layer for always-on agents that determines when to stay silent, remember, suggest, or ask for permission.**
+**AIR is a lightweight decision layer for always-on agents that determines when to stay silent, remember, suggest, or ask for permission.**
 
 ## The problem (why this exists)
 Always-on agents are useful only if they are behaviorally safe and socially aware.
@@ -13,8 +13,8 @@ In practice, an ambient system has to decide in real time whether to:
 
 Most prototypes over-index on model output quality and under-invest in these routing decisions.
 
-## What SenseRoute does
-SenseRoute is a **policy-and-salience router** for ambient interactions. It is designed to:
+## What AIR does
+AIR is a **policy-and-salience router** for ambient interactions. It is designed to:
 - ingest context signals,
 - score whether an event is salient,
 - apply memory and policy constraints,
@@ -24,8 +24,8 @@ SenseRoute is a **policy-and-salience router** for ambient interactions. It is d
 > Current status: this repository is a hackathon scaffold focused on architecture and interface shape.
 
 ## Why this is different from a chatbot or OpenRouter-style model routing
-- **Not a chatbot:** chatbots mainly generate responses after explicit prompts. SenseRoute decides whether a response should happen at all.
-- **Not just model routing:** model routers choose *which LLM/provider* to call. SenseRoute chooses *whether to act* and *how to act safely* based on context, salience, memory, and policy.
+- **Not a chatbot:** chatbots mainly generate responses after explicit prompts. AIR decides whether a response should happen at all.
+- **Not just model routing:** model routers choose *which LLM/provider* to call. AIR chooses *whether to act* and *how to act safely* based on context, salience, memory, and policy.
 - **Ambient-first:** built for continuous, low-friction interaction loops rather than single request/response sessions.
 
 ## Architecture (hackathon view)

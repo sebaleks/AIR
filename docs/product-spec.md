@@ -1,15 +1,15 @@
-# SenseRoute Product Spec
+# AIR Product Spec
 
 ## 1) Product Thesis
 
-SenseRoute is an **ambient-agent orchestrator for AI glasses**: a decision layer that determines *when* the system should act and *how much* attention to request.
+AIR is an **ambient-agent orchestrator for AI glasses**: a decision layer that determines *when* the system should act and *how much* attention to request.
 
 The core hypothesis:
 - Wearable AI only feels helpful when it is **timely, low-friction, and consent-aware**.
 - Most moments should result in **no interruption**.
 - The product value comes from choosing among: **ignore, remember, suggest, ask permission, or execute preapproved action**.
 
-SenseRoute is not trying to be a “talkative assistant.” It is trying to be a **reliable attention router** that makes small, high-confidence interventions.
+AIR is not trying to be a “talkative assistant.” It is trying to be a **reliable attention router** that makes small, high-confidence interventions.
 
 ---
 
@@ -92,7 +92,7 @@ A short wearable cue (1 line + optional tap action), not a long conversation.
 
 ## 5) System Decisions
 
-SenseRoute produces exactly one primary decision per evaluation cycle.
+AIR produces exactly one primary decision per evaluation cycle.
 
 ### `ignore`
 - **Meaning:** Do nothing and do not notify.
@@ -212,7 +212,7 @@ Any new signal should be added only if it measurably improves intervention quali
 
 ## 10) Hackathon Success Criteria
 
-SenseRoute demo is successful if it shows:
+AIR demo is successful if it shows:
 
 1. **Reliable decisioning**
    - The five decision types are implemented and observable in logs/UI.
@@ -255,4 +255,4 @@ SenseRoute demo is successful if it shows:
 - Personalization models focused on reducing unnecessary prompts.
 
 ### Long-term vision
-SenseRoute becomes the **attention operating layer** for wearable AI: minimal, respectful, and dependable in high-context daily transitions.
+AIR becomes the **attention operating layer** for wearable AI: minimal, respectful, and dependable in high-context daily transitions.
