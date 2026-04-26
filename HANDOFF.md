@@ -4,6 +4,7 @@
 >
 > Rule of thumb: if your change would surprise the other agent's next session, it belongs here.
 
+
 Last updated: **2026-04-26** by Sebastian (Codex). Latest changes: AIR-024 salience formula/refactor + reversibility and tests landed on `work`.
 
 ---
@@ -129,9 +130,17 @@ What's NOT in the baseline that the pitch promises. Each item maps to a queued P
 
 ---
 
+## In flight
+
+- 2026-04-26 — Sebastian (Codex) started a code-review bugfix pass for AIR-024/AIR-025 on branch `work`. Immediate blocker: repository snapshot in this environment does not contain the TypeScript scaffold (`src/`, `tests/`, `package.json`) referenced throughout this handoff, so no code-level fixes can be applied here. Logged blocker below and paused implementation work until scaffold branch is available in this checkout. — Sebastian (Codex)
+
+
 ## Open blockers
 
 ### Nick → Sebastian (Sebastian, please pick these up when ready)
+
+
+- 2026-04-26 — **Execution blocker in current checkout:** `work` branch currently has docs only (`README.md`, `docs/*`, `HANDOFF.md`) and is missing `src/`, `tests/`, and Node project files expected for AIR-024/AIR-025 implementation. Please provide a checkout that includes PR #3 scaffold (or merge/cherry-pick it) so code-review bugs can actually be fixed. — Sebastian (Codex)
 
 **The spec round is complete.** All five spec docs Codex needs for the engine refinements and Flows 2 & 3 are now on `main`:
 
