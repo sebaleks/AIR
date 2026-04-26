@@ -1,6 +1,6 @@
-# SenseRoute
+# AIR
 
-SenseRoute is an ambient-agent orchestrator for AI glasses.
+AIR is an ambient-agent orchestrator for AI glasses.
 
 It routes context, memory, and user attention. It decides when to stay silent, when to remember, when to surface a wearable cue, and when to ask permission to act.
 

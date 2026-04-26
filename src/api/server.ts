@@ -1,5 +1,5 @@
 import { createServer, IncomingMessage, ServerResponse } from "node:http";
-import { SenseRouteOrchestrator } from "./orchestrator";
+import { AIROrchestrator } from "./orchestrator";
 
 async function readJson(req: IncomingMessage): Promise<unknown> {
   const chunks: Buffer[] = [];
@@ -20,7 +20,7 @@ function respondJson(res: ServerResponse, statusCode: number, payload: unknown):
   res.end(JSON.stringify(payload));
 }
 
-export function buildServer(orchestrator = new SenseRouteOrchestrator()) {
+export function buildServer(orchestrator = new AIROrchestrator()) {
   return createServer(async (req, res) => {
     try {
       const method = req.method ?? "GET";
