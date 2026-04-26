@@ -8,3 +8,5 @@ export type ContextEvent = {
   privacy_risk?: number;
   user_id?: string;
 };
+
+export type IngestContextEventInput = Omit<ContextEvent, "id"> & { id?: string };

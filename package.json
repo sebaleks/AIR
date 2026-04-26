@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "start": "node --experimental-strip-types src/index.ts",
     "test": "node --experimental-strip-types --test tests/**/*.test.ts",
     "lint": "tsc --noEmit"
   },

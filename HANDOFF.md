@@ -4,14 +4,26 @@
 >
 > Rule of thumb: if your change would surprise the other agent's next session, it belongs here.
 
-Last updated: **2026-04-26** by Sebastian (Codex). Latest changes: AIR-024 salience formula/refactor + reversibility and tests landed on `work`.
+Last updated: **2026-04-26** by Nick (Claude). Latest changes: recovered abandoned baseline scaffold from closed PR #3 onto main; AIR-024 (salience formula) confirmed working with full test pass.
 
 ---
 
+## ⚠️ Workspace warning for Codex Cloud agents
+
+**Recent failure mode:** Sebastian's Codex Cloud agent has been running in sandboxed "docs-only" workspaces that don't include the full `src/` tree. When this happened with PR #3 (the original baseline), the agent **closed the PR rather than escalating** and recreated only the files it needed for AIR-024 from scratch. ~600 LOC of working code was orphaned on the closed branch.
+
+**For future Codex tasks**, two rules:
+
+1. **Never close a PR you didn't open.** If you can't merge it, log a blocker note in this file and stop. Closing leaves the work invisible.
+2. **Verify your workspace has the expected files before starting work.** The current `main` should contain `src/{context,memory,salience,policy,actions,api,demo}/`, `tests/`, and `package.json`. If anything is missing, your checkout is partial — flag it and stop.
+
+If Codex consistently runs in partial workspaces, escalate to Nick — we may need to switch implementation work to a different agent or have Nick do the recovery as he did this time.
+
+---
 
 ## In flight
 
-- 2026-04-26 — AIR-024 started on `work`: implementing policy-rules §2 formula in `src/salience/engine.ts`, adding `SalienceScore.reversibility`, and converting `tests/salience.test.ts` to table-driven coverage. — Sebastian (Codex)
+- *(none — AIR-024 landed; AIR-025/022/023 ready to start)*
 
 ## Role split
 
@@ -31,8 +43,11 @@ Task queue (Nick's side) lives in Priority Forge under project `AIR`. Sebastian'
 | Branch | Owner | Status | Notes |
 |---|---|---|---|
 | `main` | shared | baseline | Has README, AGENTS.md, `docs/product-spec.md`. No `src/` yet. |
-| `codex/create-initial-baseline-branch-and-pr` | Sebastian | **PR #3 OPEN, not yet merged → main** | TypeScript scaffold: `src/{context,memory,salience,policy,actions,api,demo}` + `tests/` + `package.json`/`tsconfig.json`. ~640 LOC. Functional skeleton with placeholder logic. Nick has reviewed (see Scaffold state below). Recommend: merge as-is, treat refinements as follow-up tasks. |
-| `nick/rename-code-to-air` | Nick | **PR #4 MERGED → baseline branch (2026-04-26 21:24Z)** | Rename now lives on `codex/create-initial-baseline-branch-and-pr`. Branch can be deleted. |
+| `codex/create-initial-baseline-branch-and-pr` | Sebastian | **PR #3 CLOSED (not merged) — files recovered onto main by Nick** | Originally held the scaffold; Sebastian's agent closed the PR rather than resolving conflicts. Nick cherry-picked the missing files onto main with ESM import fixes. Branch can be deleted. |
+| `codex/refine-salience-engine-and-add-tests` | Sebastian | **PR #5 MERGED → main (AIR-024)** | Salience formula + reversibility + table-driven tests. ✅ Tests pass. |
+| `codex/merge-pr-#3-and-resolve-conflicts` | Sebastian (agent) | **PR #6 OPEN — docs-only blocker log** | Not real progress; agent recording it couldn't merge PR #3. Can be closed. |
+| `codex/fix-code-review-bugs` | Sebastian (agent) | **PR #7 OPEN — docs-only blocker log** | Same as PR #6. Can be closed. |
+| `nick/rename-code-to-air` | Nick | PR #4 MERGED → baseline branch (now deleted via PR #3 closure) | Rename absorbed into the recovery commit. |
 | `codex/create-product-specification-for-senseroute` | Sebastian | merged into main | `docs/product-spec.md` |
 | `codex/update-readme-for-hackathon-clarity` | Sebastian | merged into main | README rewrite |
 
@@ -154,7 +169,9 @@ Before starting any of these, **flag in this file under "In flight"** so Nick kn
 
 ### Sebastian → Nick (Nick, please action these)
 
-- **Merge PR #3 to main** (and resolve the 3-file conflict — keep main's longer versions of `README.md`, `docs/product-spec.md`, `AGENTS.md`). This unblocks AIR-022 (Flow 2 impl) and AIR-023 (Flow 3 impl) on Nick's side.
+- *(PR #3 merge concern is resolved — Nick recovered the baseline files onto main directly.)*
+- **Close PR #6 and PR #7** — they're docs-only blocker logs from the workspace failure, not real progress.
+- **Delete merged branches** — `nick/rename-code-to-air`, `codex/refine-salience-engine-and-add-tests` can both be cleaned up on GitHub.
 
 ### Open — code-level rename `SenseRoute` → `AIR`
 
@@ -179,6 +196,9 @@ Sebastian: do **not** force-push `codex/create-initial-baseline-branch-and-pr` �
 - 2026-04-26 — Doc rename `SenseRoute` → `AIR` in `README.md`, `docs/product-spec.md` + AGENTS.md HANDOFF pointer + this file (`HANDOFF.md`) — Nick (Claude)
 - 2026-04-26 — PR #4 merged into baseline branch (rename in code) — Sebastian
 - 2026-04-26 — Spec round: `context-schema.md`, `policy-rules.md`, `glasses-cue-copy.md`, `privacy-model.md`, `hackathon-tracks.md`, `flow-memory-capture.md`, `flow-consentful-action.md` — Nick (Claude). Closes AIR-010, 011, 013, 014, 020, 021, 040.
+- 2026-04-26 — `docs: 2-min demo script (AIR-012) + README tighten (AIR-041)` — Nick (Claude). Closes AIR-012, AIR-041.
+- 2026-04-26 — PR #5 merged: AIR-024 salience formula + reversibility + table-driven tests — Sebastian (Codex). Math verified.
+- 2026-04-26 — Recovery commit: cherry-picked the abandoned baseline scaffold (`src/api/orchestrator.ts`, `server.ts`, `policy/engine.ts`, `memory/store.ts`, `actions/types.ts`, `context/ingest.ts`, `demo/leaving_mode.ts`, `index.ts`, `tests/api.test.ts`, `tests/policy.test.ts`) from closed PR #3 branch onto main with ESM imports + adapted to the new function-based salience API. All 9 tests pass on Node 22. — Nick (Claude)
 
 ---
 
