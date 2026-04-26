@@ -28,8 +28,8 @@ export function buildServer(orchestrator = new AIROrchestrator()) {
 
       if (method === "POST" && url === "/events") {
         const body = await readJson(req);
-        const decision = orchestrator.ingestEvent(body as any);
-        respondJson(res, 200, decision);
+        const decisions = orchestrator.ingestEvent(body as any);
+        respondJson(res, 200, decisions[0] ?? null);
         return;
       }
 
@@ -40,6 +40,11 @@ export function buildServer(orchestrator = new AIROrchestrator()) {
 
       if (method === "POST" && url === "/demo/leaving-mode") {
         respondJson(res, 200, { decisions: orchestrator.runLeavingModeDemo() });
+        return;
+      }
+
+      if (method === "POST" && url === "/demo/memory-capture") {
+        respondJson(res, 200, orchestrator.runMemoryCaptureDemo());
         return;
       }
 
