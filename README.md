@@ -1,109 +1,118 @@
 # AIR
 
-**AIR is a lightweight decision layer for always-on agents that determines when to stay silent, remember, suggest, or ask for permission.**
+**AIR is the layer that decides when an always-on agent should stay silent, remember, interrupt, or act.**
 
-## The problem (why this exists)
-Always-on agents are useful only if they are behaviorally safe and socially aware.
+Built for the Even G2 hackathon. Wearable AI feels useful only when it's *polite by construction* — and the part of an agent that knows when not to speak is exactly the part the model layer doesn't solve.
 
-In practice, an ambient system has to decide in real time whether to:
-- do nothing (stay silent),
-- store something for later (remember),
-- proactively help (suggest), or
-- request user consent before taking action (ask permission).
+> Tagline: *"An orchestrator for agents that know when to stay silent, when to remember, and when to act."*
 
-Most prototypes over-index on model output quality and under-invest in these routing decisions.
+---
 
-## What AIR does
-AIR is a **policy-and-salience router** for ambient interactions. It is designed to:
-- ingest context signals,
-- score whether an event is salient,
-- apply memory and policy constraints,
-- choose one action (`silent | remember | suggest | ask_permission`),
-- expose that decision through an API for a wearable or companion app.
+## The three demo flows
 
-> Current status: this repository is a hackathon scaffold focused on architecture and interface shape.
+| Flow | What it shows | Spec |
+|---|---|---|
+| **1. Leaving Mode** | Routine support — calendar + travel-time signals produce one earned `suggest` cue, nothing else. | `docs/product-spec.md` |
+| **2. Memory Capture** | A casual voice mention is captured silently and resurfaces only when context warrants. | `docs/flow-memory-capture.md` |
+| **3. Consentful Action** | Running-late detection produces an `ask_permission` cue; one tap sends; user can graduate to a scoped, revocable preapproval. | `docs/flow-consentful-action.md` |
 
-## Why this is different from a chatbot or OpenRouter-style model routing
-- **Not a chatbot:** chatbots mainly generate responses after explicit prompts. AIR decides whether a response should happen at all.
-- **Not just model routing:** model routers choose *which LLM/provider* to call. AIR chooses *whether to act* and *how to act safely* based on context, salience, memory, and policy.
-- **Ambient-first:** built for continuous, low-friction interaction loops rather than single request/response sessions.
+The 2-minute judge-facing walkthrough is in [`docs/demo-script.md`](docs/demo-script.md).
 
-## Architecture (hackathon view)
+---
+
+## Why this is not a model wrapper
+
+Most agent demos compete on the LLM tier. AIR's value is *upstream of the model*:
+
+- **Context schema** — what an event is, what a memory carries.
+- **Salience scoring** — six dimensions, weighted formula, explicit thresholds.
+- **Policy pipeline** — six gates that downgrade toward silence, with privacy and memory governance overrides.
+- **Cooldown / interruption budget** — the trust-critical feature most ambient demos skip.
+- **Permissioned action layer** — graduated consent, scoped preapprovals, allowlisted templates.
+- **Cue copy contract** — every HUD string ≤ 40 chars, no exclamation marks, no chat aesthetic.
+
+Each lives as its own spec under [`docs/`](docs/). The repo is built so the docs are the contract and `src/` follows.
+
+---
+
+## Architecture
+
 ```mermaid
 flowchart LR
-    S[Context Signals\nvoice, location, time, app state] --> C[context]
+    S[Context signals<br/>voice, location, time, calendar] --> C[context]
     C --> SAL[salience]
     C --> MEM[memory]
     MEM --> POL[policy]
     SAL --> POL
     POL --> ACT[actions]
     ACT --> API[api]
-    API --> D[demo client]
+    API --> HUD[glasses HUD]
 
-    POL -->|silent| A1[(No output)]
-    POL -->|remember| A2[(Memory write)]
-    POL -->|suggest| A3[(Nudge)]
-    POL -->|ask_permission| A4[(Consent prompt)]
+    POL -->|ignore| A0[no output]
+    POL -->|remember| A1[silent capture]
+    POL -->|suggest| A2[soft cue]
+    POL -->|ask_permission| A3[consent prompt]
+    POL -->|execute_preapproved| A4[scoped action]
 ```
 
-## Core modules
-- **context**: normalizes current signals (time, user state, device state, environment).
-- **memory**: stores and retrieves short/long-term facts and recent events.
-- **salience**: estimates how important/urgent an event is.
-- **policy**: applies boundaries and selects allowed behavior.
-- **actions**: executes the selected behavior (`silent`, `remember`, `suggest`, `ask_permission`).
-- **api**: HTTP interface for decision requests and memory operations.
-- **demo**: simple script/app to simulate ambient events and inspect router output.
+Core modules under [`src/`](src/) (after PR #3 lands on main): `context/`, `memory/`, `salience/`, `policy/`, `actions/`, `api/`, `demo/`. See [`AGENTS.md`](AGENTS.md) for tooling and conventions, [`HANDOFF.md`](HANDOFF.md) for live coordination state.
 
-## Install and run
+---
+
+## Quick start
+
 ```bash
 npm install
 npm run build
 npm start
 ```
 
-If `npm start` is not defined yet in your local branch, run the API entrypoint directly once implemented.
+Server defaults to `http://localhost:3000`.
 
-## Run tests
 ```bash
 npm test
 ```
 
-## Demo endpoint examples (target contract for hackathon demo)
-> These examples describe the intended demo API shape and should be aligned with implementation as endpoints land.
+## API surface
+
+The baseline scaffold exposes three endpoints. Schema lives in [`docs/context-schema.md`](docs/context-schema.md).
 
 ```bash
-# 1) Route an ambient event
-curl -X POST http://localhost:3000/api/route \
-  -H "Content-Type: application/json" \
+# Ingest one ambient event
+curl -X POST http://localhost:3000/events \
+  -H 'content-type: application/json' \
   -d '{
-    "userId": "u_123",
-    "event": "calendar_conflict_detected",
-    "context": {
-      "inMeeting": true,
-      "device": "earbuds",
-      "time": "2026-04-26T14:00:00Z"
-    }
+    "kind": "departure_signal",
+    "source": "calendar",
+    "payload": { "minutes_to_departure": 6, "destination": "office" },
+    "confidence": 0.92,
+    "privacy_risk": 0.2,
+    "timestamp": "2026-04-26T15:24:00.000Z"
   }'
 
-# 2) Write a memory candidate
-curl -X POST http://localhost:3000/api/memory \
-  -H "Content-Type: application/json" \
-  -d '{
-    "userId": "u_123",
-    "fact": "Prefers text summaries after meetings",
-    "source": "interaction"
-  }'
+# Inspect the orchestrator's state
+curl http://localhost:3000/state
 
-# 3) Health check
-curl http://localhost:3000/health
+# Run the Leaving Mode demo flow
+curl -X POST http://localhost:3000/demo/leaving-mode
 ```
 
-## Next 24-hour roadmap (hackathon)
-1. Implement minimal API endpoints: `/health`, `/api/route`, `/api/memory`.
-2. Add deterministic `salience` and `policy` v0 rules with clear unit tests.
-3. Add an in-memory `memory` adapter, then optional SQLite via Prisma.
-4. Build a tiny `demo` script that replays 5 realistic ambient scenarios.
-5. Add observability logs: input context, selected action, policy reason.
-6. Tighten safety: explicit permission gates and deny-by-default action policy.
-7. Ship a 2-minute walkthrough (GIF or terminal script) for judges.
+`POST /demo/memory-capture` and `POST /demo/consentful-action` land with **AIR-022** and **AIR-023**.
+
+---
+
+## Spec docs
+
+| Doc | Topic |
+|---|---|
+| [`docs/product-spec.md`](docs/product-spec.md) | Product thesis, target user, decisions, success criteria |
+| [`docs/context-schema.md`](docs/context-schema.md) | Typed shapes for every entity (events, memory, decisions, permissions) |
+| [`docs/policy-rules.md`](docs/policy-rules.md) | Salience formula, threshold table, cooldown rules, walk-throughs |
+| [`docs/glasses-cue-copy.md`](docs/glasses-cue-copy.md) | Every HUD string + voice/tone contract |
+| [`docs/privacy-model.md`](docs/privacy-model.md) | Data categories, retention, audit log, opt-in/revoke UX |
+| [`docs/hackathon-tracks.md`](docs/hackathon-tracks.md) | How AIR maps to each track, with the moment to watch for |
+| [`docs/flow-memory-capture.md`](docs/flow-memory-capture.md) | Flow 2 spec |
+| [`docs/flow-consentful-action.md`](docs/flow-consentful-action.md) | Flow 3 spec |
+| [`docs/demo-script.md`](docs/demo-script.md) | The 2-minute walkthrough |
+
+Tasks are tracked in Priority Forge under project `AIR`. Live coordination state for both maintainers (Nick on Claude, Sebastian on Codex) lives in [`HANDOFF.md`](HANDOFF.md).
