@@ -48,6 +48,12 @@ export function buildServer(orchestrator = new AIROrchestrator()) {
         return;
       }
 
+      if (method === "POST" && url === "/demo/consentful-action") {
+        const body = (await readJson(req)) as { userResponse?: "yes" | "no" | "timeout" };
+        respondJson(res, 200, orchestrator.runConsentfulActionDemo(body.userResponse));
+        return;
+      }
+
       respondJson(res, 404, { error: "Not found" });
     } catch (error) {
       console.error("Request handling failed", error);

@@ -11,6 +11,14 @@ import {
   memoryCaptureEvents,
   VICTOR_LATENCY_CUE,
 } from "../demo/memory_capture.ts";
+import {
+  PREAPPROVAL_GRANT_CUE,
+  RUNNING_LATE_CUE,
+  runningLateEvent,
+  TEXTED_CONFIRMATION_CUE,
+  type UserResponse,
+  userConfirmedSendEvent,
+} from "../demo/consentful_action.ts";
 
 const RESURFACE_RECURSION_CAP = 1;
 
@@ -106,6 +114,45 @@ export class AIROrchestrator {
   runLeavingModeDemo(): EventDecision[] {
     const now = new Date().toISOString();
     return leavingModeEvents(now).flatMap((evt) => this.ingestEvent(evt));
+  }
+
+  /**
+   * Flow 3 — Consentful Action.
+   * Returns the sequence of decisions and cues a judge would see, given
+   * how the user responds to the initial ask_permission prompt.
+   */
+  runConsentfulActionDemo(
+    userResponse: UserResponse = "yes",
+  ): {
+    decisions: EventDecision[];
+    cues: string[];
+    grantedPreapproval: boolean;
+  } {
+    const now = new Date().toISOString();
+    const decisions: EventDecision[] = [];
+    const cues: string[] = [];
+
+    const askDecisions = this.ingestEvent(runningLateEvent(now));
+    decisions.push(...askDecisions);
+    if (askDecisions.some((d) => d.action === "ask_permission")) {
+      cues.push(RUNNING_LATE_CUE);
+    }
+
+    if (userResponse !== "yes") {
+      return { decisions, cues, grantedPreapproval: false };
+    }
+
+    const confirmDecisions = this.ingestEvent(userConfirmedSendEvent(now));
+    decisions.push(...confirmDecisions);
+    if (confirmDecisions.some((d) => d.action === "execute_preapproved")) {
+      cues.push(TEXTED_CONFIRMATION_CUE);
+      cues.push(PREAPPROVAL_GRANT_CUE);
+    }
+
+    // For the hackathon prototype the preapproval grant prompt always
+    // appears but isn't acted on (no Preapproval store yet — would land
+    // with full AIR-023 follow-up).
+    return { decisions, cues, grantedPreapproval: false };
   }
 
   runMemoryCaptureDemo(): { decisions: EventDecision[]; cue: string | null } {
