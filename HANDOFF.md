@@ -4,7 +4,7 @@
 >
 > Rule of thumb: if your change would surprise the other agent's next session, it belongs here.
 
-Last updated: **2026-04-26** by Nick (Claude). Latest changes: recovered abandoned baseline scaffold from closed PR #3 onto main; AIR-024 (salience formula) confirmed working with full test pass.
+Last updated: **2026-04-26** by Nick (Claude). Latest changes: AIR-022 (Flow 2 memory capture + governance + resurface), AIR-023 (Flow 3 consentful action), AIR-025 (cooldown + full six-gate policy pipeline) all landed on main with 25/25 tests passing. End-to-end flows are working.
 
 ---
 
@@ -27,12 +27,16 @@ If Codex consistently runs in partial workspaces, escalate to Nick — we may ne
 
 ## Role split
 
-| Side | Tooling | Owns |
-|---|---|---|
-| **Nick** | Claude (Opus 4.7) | Spec docs, narrative, demo script, pitch deck, adversarial review |
-| **Sebastian** | Codex Cloud | Scaffolding, src/ implementation, tests, persistence, infra |
+**Original split** (per `works-split.md`):
 
-This split is **flexible** — if Sebastian's throughput slows or Nick wants deeper code ownership, we revisit. Current default per `works-split.md`: Claude shapes "what should this agent do and why," Codex shapes "make the repo actually work." Spec docs Nick writes are intended to be fed directly into Codex prompts as source-of-truth.
+| Side | Tooling | Owned |
+|---|---|---|
+| Nick | Claude (Opus 4.7) | Spec docs, narrative, demo script, pitch deck, adversarial review |
+| Sebastian | Codex Cloud | Scaffolding, `src/` implementation, tests, persistence, infra |
+
+**Actual split (post-2026-04-26):** Claude (Nick) absorbed implementation work after Sebastian's Codex Cloud agent demonstrated a docs-only workspace failure mode (closed PR #3, recreated only what AIR-024 needed, opened no-op blocker PRs #6 and #7). Sebastian shipped AIR-024 cleanly; everything else (AIR-022, 023, 025, plus the recovery commit) landed via Claude in the same session.
+
+For the rest of the hackathon: **Sebastian's role becomes human review + demo recording + pitch delivery**, not implementation via Codex. Implementation work continues on the Claude side. Revisit post-hackathon.
 
 Task queue (Nick's side) lives in Priority Forge under project `AIR`. Sebastian's side has no equivalent tracker yet — when he picks up a task from this doc, mark it `[in flight — Sebastian]`.
 
@@ -169,9 +173,16 @@ Before starting any of these, **flag in this file under "In flight"** so Nick kn
 
 ### Sebastian → Nick (Nick, please action these)
 
-- *(PR #3 merge concern is resolved — Nick recovered the baseline files onto main directly.)*
-- **Close PR #6 and PR #7** — they're docs-only blocker logs from the workspace failure, not real progress.
+Housekeeping only — no implementation blockers:
+- **Close PR #6 and PR #7** — docs-only blocker logs from the agent's workspace failure, not real progress.
 - **Delete merged branches** — `nick/rename-code-to-air`, `codex/refine-salience-engine-and-add-tests` can both be cleaned up on GitHub.
+
+What Sebastian could do as a human (not via Codex):
+- Run `npm test` locally and confirm all 25 tests pass on Node 22.
+- `npm start` + curl the demo endpoints (`/demo/leaving-mode`, `/demo/memory-capture`, `/demo/consentful-action`).
+- Read the spec docs and challenge anything that feels wrong — especially `policy-rules.md` thresholds and `flow-consentful-action.md` action allowlist.
+- Help with **AIR-051** (recording the 2-min walkthrough) — needs a screen recorder.
+- Help with **AIR-042** (pitch deck) once Nick + Claude finish AIR-043 (pitch.md walkthrough).
 
 ### Open — code-level rename `SenseRoute` → `AIR`
 
@@ -199,6 +210,9 @@ Sebastian: do **not** force-push `codex/create-initial-baseline-branch-and-pr` �
 - 2026-04-26 — `docs: 2-min demo script (AIR-012) + README tighten (AIR-041)` — Nick (Claude). Closes AIR-012, AIR-041.
 - 2026-04-26 — PR #5 merged: AIR-024 salience formula + reversibility + table-driven tests — Sebastian (Codex). Math verified.
 - 2026-04-26 — Recovery commit: cherry-picked the abandoned baseline scaffold (`src/api/orchestrator.ts`, `server.ts`, `policy/engine.ts`, `memory/store.ts`, `actions/types.ts`, `context/ingest.ts`, `demo/leaving_mode.ts`, `index.ts`, `tests/api.test.ts`, `tests/policy.test.ts`) from closed PR #3 branch onto main with ESM imports + adapted to the new function-based salience API. All 9 tests pass on Node 22. — Nick (Claude)
+- 2026-04-26 — `feat(policy): AIR-025 — six-gate pipeline with cooldown + threshold table` — Nick (Claude). Closes AIR-025. 17/17 tests pass.
+- 2026-04-26 — `feat(memory): AIR-022 — Flow 2 memory capture + governance + resurface` — Nick (Claude). Closes AIR-022. 21/21 tests pass.
+- 2026-04-26 — `feat(demo): AIR-023 — Flow 3 consentful action` — Nick (Claude). Closes AIR-023. 25/25 tests pass.
 
 ---
 
