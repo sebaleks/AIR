@@ -6,7 +6,7 @@ import { PolicyEngine } from "../policy/engine";
 import { SalienceEngine } from "../salience/engine";
 import { leavingModeEvents } from "../demo/leaving_mode";
 
-export class SenseRouteOrchestrator {
+export class AIROrchestrator {
   private memory = new MemoryStore();
   private salience = new SalienceEngine();
   private policy = new PolicyEngine();

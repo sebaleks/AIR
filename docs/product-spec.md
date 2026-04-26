@@ -1,7 +1,7 @@
-# SenseRoute Product Spec (Baseline)
+# AIR Product Spec (Baseline)
 
 ## Product thesis
-SenseRoute routes context, memory, and user attention for AI glasses.
+AIR routes context, memory, and user attention for AI glasses.
 
 It decides:
 - when to stay silent,
@@ -24,7 +24,7 @@ Fields:
 - `privacy_risk`: optional privacy sensitivity estimate (0..1)
 
 ### Salience score
-For each event, SenseRoute computes:
+For each event, AIR computes:
 - `urgency`
 - `confidence`
 - `user_value`
