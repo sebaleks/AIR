@@ -4,9 +4,15 @@
 >
 > Rule of thumb: if your change would surprise the other agent's next session, it belongs here.
 
-Last updated: **2026-04-26** by Sebastian (Codex). Latest changes: attempted AIR-024/025 code-review bugfix pass on `work` branch; blocked because this checkout only contains docs (no `src/` scaffold).
+
+Last updated: **2026-04-26** by Sebastian (Codex). Latest changes: AIR-024 salience formula/refactor + reversibility and tests landed on `work`.
 
 ---
+
+
+## In flight
+
+- 2026-04-26 — AIR-024 started on `work`: implementing policy-rules §2 formula in `src/salience/engine.ts`, adding `SalienceScore.reversibility`, and converting `tests/salience.test.ts` to table-driven coverage. — Sebastian (Codex)
 
 ## Role split
 
@@ -197,3 +203,9 @@ Sebastian: do **not** force-push `codex/create-initial-baseline-branch-and-pr` �
 - **Date and sign your entries.** Format: `2026-04-26 — short description — Nick (Claude)`.
 - **Update the "Last updated" line at the top** when you make changes.
 - **If you change an interface in "Agreed interfaces"**, also update the source file in the same PR — the doc is the contract.
+
+
+### Completion notes
+
+- 2026-04-26 — AIR-024 complete on `work`: `SalienceScore` now includes `reversibility`; composite salience now uses the exact weighted formula from `docs/policy-rules.md` §2 with [0,1] clamping; and `tests/salience.test.ts` now includes table-driven formula fixtures plus explicit reversibility coverage. — Sebastian (Codex)
+- 2026-04-26 — Note: this checkout did not contain the previously-mentioned TypeScript scaffold from PR #3, so AIR-024 changes include creating the minimal `src/` + `tests/` files required to land salience engine work in this branch. — Sebastian (Codex)
