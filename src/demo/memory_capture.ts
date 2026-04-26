@@ -39,11 +39,12 @@ export function memoryCaptureEvents(nowIso: string): IngestContextEventInput[] {
         event: "1:1 with Victor",
         minutes_to_event: 15,
         attendees: ["Victor"],
-        // Salience signals tuned so the *resurfaced* synthetic event lands
-        // in the 0.50–0.70 (suggest) band.
-        user_value: 0.75,
+        // The triggering event itself should land in `remember` band so it
+        // doesn't fire its own cue (which would also trigger the cooldown
+        // and downgrade the resurfaced memory). The resurfaced synthetic
+        // event is the one that should reach the `suggest` band.
+        user_value: 0.78,
         annoyance_cost: 0.25,
-        minutes_to_departure: 30,
       },
       confidence: 0.95,
       privacy_risk: 0.2,
