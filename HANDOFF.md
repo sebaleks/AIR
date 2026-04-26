@@ -4,7 +4,7 @@
 >
 > Rule of thumb: if your change would surprise the other agent's next session, it belongs here.
 
-Last updated: **2026-04-26** by Nick (Claude).
+Last updated: **2026-04-26** by Nick (Claude). Latest changes: scaffold review formalized (AIR-003 complete), PR #4 (rename) opened.
 
 ---
 
@@ -26,7 +26,8 @@ Task queue (Nick's side) lives in Priority Forge under project `AIR`. Sebastian'
 | Branch | Owner | Status | Notes |
 |---|---|---|---|
 | `main` | shared | baseline | Has README, AGENTS.md, `docs/product-spec.md`. No `src/` yet. |
-| `codex/create-initial-baseline-branch-and-pr` | Sebastian | **OPEN, not yet merged** | TypeScript scaffold: `src/{context,memory,salience,policy,actions,api,demo}` + `tests/` + `package.json`/`tsconfig.json`. ~640 LOC. Functional skeleton with placeholder logic. Nick has reviewed (see Scaffold state below). Recommend: merge as-is, treat refinements as follow-up tasks. |
+| `codex/create-initial-baseline-branch-and-pr` | Sebastian | **PR #3 OPEN, not yet merged → main** | TypeScript scaffold: `src/{context,memory,salience,policy,actions,api,demo}` + `tests/` + `package.json`/`tsconfig.json`. ~640 LOC. Functional skeleton with placeholder logic. Nick has reviewed (see Scaffold state below). Recommend: merge as-is, treat refinements as follow-up tasks. |
+| `nick/rename-code-to-air` | Nick | **PR #4 OPEN, stacked → `codex/create-initial-baseline-branch-and-pr`** | Renames `SenseRoute` → `AIR` in code/docs of baseline branch. Merge before PR #3 to keep history clean. |
 | `codex/create-product-specification-for-senseroute` | Sebastian | merged into main | `docs/product-spec.md` |
 | `codex/update-readme-for-hackathon-clarity` | Sebastian | merged into main | README rewrite |
 
@@ -100,6 +101,27 @@ Source: `pitch.md` § "interruption scoring."
 
 **Verdict:** Merge-ready. Refinements (real salience formula, cooldown, memory governance, Flows 2 & 3) become follow-up tasks rather than merge blockers.
 
+### Missing vs `pitch.md` (centralized — drives AIR-010 through AIR-025)
+
+What's NOT in the baseline that the pitch promises. Each item maps to a queued Priority Forge task.
+
+| Pitch concept | Status in baseline | Tracked as |
+|---|---|---|
+| Weighted salience formula (`0.35*urgency + 0.25*conf + 0.20*value + 0.10*reversibility - 0.25*annoyance - 0.30*privacy`) | ❌ not implemented — current code uses ad-hoc linear math | **AIR-024** |
+| `reversibility` factor in `SalienceScore` | ❌ field absent | **AIR-024** (extend `SalienceScore` type) |
+| Threshold gating at `0.30/0.50/0.70/0.90` | ❌ — current `PolicyEngine` uses different cutoffs (0.65 urgency, 0.7 user_value, etc.) | **AIR-024** |
+| Cooldown / interruption budget (max one suggest/ask per N min) | ❌ not implemented — every event fires unconditionally | **AIR-025** (trust-critical per pitch §6) |
+| Memory governance (confidence, sensitivity, allowed_actions, expires_or_revalidates) | ❌ — `MemoryRecord` is `{id, eventId, summary, createdAt}` only | **AIR-010** (schema) → Sebastian extends `src/memory/store.ts` |
+| Flow 2 — Memory Capture (silent capture of casual mentions, resurface) | ❌ no demo, no resurfacing logic | **AIR-020** spec → **AIR-022** impl |
+| Flow 3 — Consentful Action ("Text Alex you're 5 min late?" → tap-to-confirm) | ❌ `ask_permission` returns from policy but no UI / consent shape / allowlist | **AIR-021** spec → **AIR-023** impl |
+| Glasses cue copy (length, voice, tone) | ❌ no cue strings anywhere — orchestrator stores generic `"${kind} from ${source}"` summary | **AIR-013** |
+| Audit log / "why did this cue appear" explainability | ❌ — decisions are stored but not annotated with reason | not yet tracked — propose adding to AIR-014 (privacy model) since it's privacy-relevant |
+| Privacy posture (data minimization, retention windows, opt-in/revoke) | 🟡 — `privacy_risk` score exists but no retention or revoke mechanism | **AIR-014** |
+
+**Implication for ownership of AIR-024 / AIR-025:** these are refactors of code Sebastian just wrote. Default plan per HANDOFF role split: Nick writes the spec (AIR-011 = decision table + cooldown rules), then hands implementation to Sebastian via this doc. Sebastian's tooling is faster at touching code he just wrote than Claude is at coming in cold.
+
+— *Review formalized 2026-04-26 by Nick (Claude). AIR-003 complete.*
+
 ---
 
 ## Open blockers
@@ -112,14 +134,17 @@ Source: `pitch.md` § "interruption scoring."
 
 - **Confirm merge of baseline PR** so Nick can begin Flow 2 / Flow 3 implementation tasks (AIR-022, AIR-023).
 
-### In flight — code-level rename `SenseRoute` → `AIR`
+### Open — code-level rename `SenseRoute` → `AIR`
 
-Nick (Claude) is preparing a stacked branch off `codex/create-initial-baseline-branch-and-pr` named `nick/rename-code-to-air` that renames:
-- `package.json` → `"name": "air"`, description, etc.
+**PR #4** (`nick/rename-code-to-air` → `codex/create-initial-baseline-branch-and-pr`) renames:
+- `package.json` → `"name": "air"`, description
 - `src/api/orchestrator.ts` → class `AIROrchestrator`
-- `src/api/server.ts`, `src/index.ts`, `tests/api.test.ts` → import updates
+- `src/api/server.ts`, `src/index.ts` → import + log updates
+- This branch's README + product-spec also renamed (separate from main's longer canonical versions)
 
-Sebastian: please pull this branch into your baseline PR (or accept the stacked PR) before merging baseline to `main`. Do **not** force-push your baseline branch in the meantime — it'll wipe the rename commit.
+**Merge order:** PR #4 first (rename → Sebastian's branch), then PR #3 (baseline + rename → main). On PR #3 merge, conflicts will appear on `README.md` and `docs/product-spec.md` — keep main's longer versions, discard the baseline branch's shorter ones.
+
+Sebastian: do **not** force-push `codex/create-initial-baseline-branch-and-pr` — it'll wipe PR #4's commit.
 
 ---
 
