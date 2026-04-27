@@ -4,7 +4,7 @@
 >
 > Rule of thumb: if your change would surprise the other agent's next session, it belongs here.
 
-Last updated: **2026-04-26** by Nick (Claude). Latest changes: AIR-022 (Flow 2 memory capture + governance + resurface), AIR-023 (Flow 3 consentful action), AIR-025 (cooldown + full six-gate policy pipeline) all landed on main with 25/25 tests passing. End-to-end flows are working.
+Last updated: **2026-04-26** by Nick (Claude). Latest changes: AIR-022 (Flow 2 memory capture + governance + resurface), AIR-023 (Flow 3 consentful action), AIR-025 (cooldown + full six-gate policy pipeline) all landed on main with 25/25 tests passing. End-to-end flows are working. **AIR-043: `pitch.md` rewritten** on Problem → Insight → Wedge framing; L0–L5 conceptual ladder migrated from `pitch.md` into `docs/policy-rules.md` § 2.1 (no enum/code change — pure teaching frame next to the existing `PolicyAction`).
 
 ---
 

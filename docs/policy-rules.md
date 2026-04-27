@@ -51,6 +51,25 @@ Source: `pitch.md` § "interruption scoring."
 
 ---
 
+## 2.1 Conceptual ladder (L0–L5)
+
+The five-value `PolicyAction` enum is the *enforced* contract. The six-rung ladder below is the *teaching frame* — it's how to reason about what the engine is allowed to do at each rung, including the implicit "Prepare" sub-step that lives inside `ask_permission`.
+
+| Rung | What it means | Maps to `PolicyAction` | Example |
+|---|---|---|---|
+| **L0** | Observe only | `ignore` | "User mentioned they may be late." → no output, no memory. |
+| **L1** | Remember | `remember` | "Store that Monday meetings tend to run over." |
+| **L2** | Suggest | `suggest` | `"Leave in 10 min for 9:00 class?"` |
+| **L3** | Prepare (no surface) | sub-step of `ask_permission` | Draft the text-to-teammate body so the next rung is one tap away. |
+| **L4** | Execute with confirmation | `ask_permission` | `"Text Alex you're 5 min late?"` |
+| **L5** | Execute automatically | `execute_preapproved` | Only when a `Preapproval` matches and privacy override didn't fire. |
+
+L3 doesn't have its own enum value because nothing leaves the engine at L3 — the prepared payload rides inside the `SuggestedAction.followup` of an L4 cue. The reason it's a named rung anyway: it's the gate where the action template + its parameters get resolved, so by the time the user sees the L4 question, the answer is already one bit (`yes`/`no`) instead of a form-fill.
+
+The ladder is also why AIR is "permissioned" rather than "permissioned + capable": every rung above L0 is an *earned* upgrade. L1 needs salience above 0.30 *and* memory governance to not block. L2 needs salience above 0.50 *and* cooldown room. L4 needs salience above 0.70 *and* privacy override not to fire. L5 needs an active `Preapproval`. Nothing skips a rung.
+
+---
+
 ## 3. Threshold gating
 
 | `total` | Proposed action | Notes |

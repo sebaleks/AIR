@@ -19,14 +19,39 @@ import {
   type UserResponse,
   userConfirmedSendEvent,
 } from "../demo/consentful_action.ts";
+import type { CueRenderer, EventSourceAdapter, RenderedCue } from "../adapters/types.ts";
 
 const RESURFACE_RECURSION_CAP = 1;
+const DEFAULT_CUE_TTL_MS = 4000;
 
 export class AIROrchestrator {
   private memory = new MemoryStore();
   private policy = new PolicyEngine();
   private events: ContextEvent[] = [];
   private decisions: EventDecision[] = [];
+  private adapters: EventSourceAdapter[] = [];
+  private renderer: CueRenderer | null = null;
+
+  /**
+   * Plug any `EventSourceAdapter` into the orchestrator. The adapter
+   * pushes normalized events into `ingestEvent` via the callback we
+   * give to `start()`. See `docs/g2-alignment.md` § "Adapter architecture".
+   */
+  async registerAdapter(adapter: EventSourceAdapter): Promise<void> {
+    this.adapters.push(adapter);
+    await adapter.start((input) => {
+      this.ingestEvent(input);
+    });
+  }
+
+  async unregisterAll(): Promise<void> {
+    for (const adapter of this.adapters) await adapter.stop();
+    this.adapters = [];
+  }
+
+  setRenderer(renderer: CueRenderer | null): void {
+    this.renderer = renderer;
+  }
 
   /**
    * Ingest one event. Returns the primary decision plus any decisions
@@ -55,12 +80,66 @@ export class AIROrchestrator {
     this.events.push(event);
     this.decisions.push(eventDecision);
 
+    this.maybeRender(event, eventDecision, decision.action);
+
     if (depth >= RESURFACE_RECURSION_CAP) {
       return [eventDecision];
     }
 
     const resurfaceDecisions = this.processResurfaces(event, depth);
     return [eventDecision, ...resurfaceDecisions];
+  }
+
+  private maybeRender(event: ContextEvent, decision: EventDecision, action: string): void {
+    if (!this.renderer) return;
+    if (action === "ignore" || action === "remember") return;
+
+    const text = this.cueTextFor(event, action);
+    if (!text) return;
+
+    const cue: RenderedCue = {
+      text,
+      action: decision.action,
+      event,
+      decision,
+      expiresInMs: DEFAULT_CUE_TTL_MS,
+    };
+    void this.renderer.render(cue);
+  }
+
+  /**
+   * Map (event, action) → canonical cue string per docs/glasses-cue-copy.md.
+   * Returns null when the action shouldn't surface a cue (or when we
+   * don't have a template wired up yet — caller should remain silent).
+   */
+  private cueTextFor(event: ContextEvent, action: string): string | null {
+    const minutes = event.payload["minutes_to_departure"];
+
+    if (event.kind === "memory_resurfaced" && action === "suggest") {
+      const summary = String(event.payload["summary"] ?? "");
+      if (summary.toLowerCase().includes("victor") && summary.toLowerCase().includes("latency")) {
+        return "Ask Victor about latency?";
+      }
+      return null;
+    }
+
+    if (event.kind === "calendar_event_upcoming" && action === "ask_permission") {
+      const attendees = event.payload["attendees"];
+      const name = Array.isArray(attendees) && attendees.length > 0 ? String(attendees[0]) : "them";
+      return `Running 5 min late. Text ${name}?`;
+    }
+
+    if (event.kind === "user_confirmed_action" && action === "execute_preapproved") {
+      const recipients = event.payload["recipients"];
+      const name = Array.isArray(recipients) && recipients.length > 0 ? String(recipients[0]) : "them";
+      return `Texted ${name}.`;
+    }
+
+    if (event.kind === "departure_signal" && action === "suggest" && typeof minutes === "number") {
+      return `Leave in ${minutes} min?`;
+    }
+
+    return null;
   }
 
   private captureMemory(event: ContextEvent, input: IngestContextEventInput): MemoryRecord {
