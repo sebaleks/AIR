@@ -117,11 +117,13 @@ All scope fields are **inferred from the current event**, not free-form. The use
 
 The cue is shown on the HUD. The user can confirm three ways:
 
-| Modality | Yes signal | No signal |
-|---|---|---|
-| Tap | Single tap on G2 temple | Double tap or no tap before timeout |
-| Voice | "Yes" / "Send it" / "Go ahead" | "No" / "Cancel" / "Not now" |
-| Implicit | (none — must be explicit) | Cue expires after 4 seconds with no response → treated as no |
+| Modality | Yes signal | No signal | SDK event |
+|---|---|---|---|
+| Tap | Single tap on G2 temple | Double tap | `CLICK_EVENT` (yes) / `DOUBLE_CLICK_EVENT` (no) |
+| Voice | "Yes" / "Send it" / "Go ahead" | "No" / "Cancel" / "Not now" | App-side STT on top of `audioControl` PCM frames |
+| Implicit | (none — must be explicit) | Cue expires after 4 seconds with no response → treated as no | App-side timer in the `CueRenderer` |
+
+The yes / no gesture mapping is provisional — verify on hardware. See `docs/g2-alignment.md` § "Input events".
 
 **Timeout = silent dismiss.** If the user doesn't respond within 4 seconds, the cue clears, the action does **not** execute, and no preapproval prompt fires. Reason code logged: `user_response: "ignored_timeout"`.
 

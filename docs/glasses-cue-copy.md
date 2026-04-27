@@ -138,7 +138,17 @@ Out of scope for the hackathon prototype. All copy is English. If we ship beyond
 
 ---
 
-## 8. Where copy lives in code
+## 8. G2 hardware notes
+
+The Even G2 SDK constrains how a cue actually surfaces. See `docs/g2-alignment.md` for the full audit.
+
+- **One event-capture container per page.** A cue must be a *single* text container — not separate yes / no buttons. Yes-vs-no is a tap-state distinction inside that container.
+- **Yes** = `CLICK_EVENT`. **No** = `DOUBLE_CLICK_EVENT` *or* a 4-second timeout (silent dismiss). Calibrate on hardware.
+- **Update primitive** = `bridge.textContainerUpgrade(...)` for low-flicker text swaps. Use this when chaining cues (`"Running 5 min late. Text Alex?"` → `"Texted Alex."`) to avoid flicker.
+- **Char budget on the wire** is much higher than our copy budget — `textContainerUpgrade` accepts up to 2,000 chars. Our ≤ 40 char target is a *legibility* constraint, not an SDK limit.
+- **Greyscale only**: 4-bit (16 levels of green). No color reliance in copy.
+
+## 9. Where copy lives in code
 
 Once these strings are wired into the orchestrator, they live in:
 - `src/copy/cues.ts` (proposed — does not yet exist) — exports a `cues` object keyed by template name with parameter substitution: `cues.suggest.depart_in({ minutes: 6, event: '9:00 class' })` returns `"Leave in 6 min for 9:00 class?"`.

@@ -4,7 +4,7 @@
 >
 > Rule of thumb: if your change would surprise the other agent's next session, it belongs here.
 
-Last updated: **2026-04-26** by Nick (Claude). Latest changes: AIR-022 (Flow 2 memory capture + governance + resurface), AIR-023 (Flow 3 consentful action), AIR-025 (cooldown + full six-gate policy pipeline) all landed on main with 25/25 tests passing. End-to-end flows are working. **AIR-043: `pitch.md` rewritten** on Problem → Insight → Wedge framing; L0–L5 conceptual ladder migrated from `pitch.md` into `docs/policy-rules.md` § 2.1 (no enum/code change — pure teaching frame next to the existing `PolicyAction`).
+Last updated: **2026-04-26** by Nick (Claude). Latest changes: **AIR-070 (G2 SDK alignment audit + plugin-modularity refactor) and AIR-042 (pitch deck) landed.** End-to-end is demo-ready. 30/30 tests passing. Outstanding: AIR-051 (recording — needs human + screen recorder), AIR-062 (recurring review — low priority). P2 stretch tasks (AIR-060/061) are cut.
 
 ---
 
@@ -213,6 +213,10 @@ Sebastian: do **not** force-push `codex/create-initial-baseline-branch-and-pr` �
 - 2026-04-26 — `feat(policy): AIR-025 — six-gate pipeline with cooldown + threshold table` — Nick (Claude). Closes AIR-025. 17/17 tests pass.
 - 2026-04-26 — `feat(memory): AIR-022 — Flow 2 memory capture + governance + resurface` — Nick (Claude). Closes AIR-022. 21/21 tests pass.
 - 2026-04-26 — `feat(demo): AIR-023 — Flow 3 consentful action` — Nick (Claude). Closes AIR-023. 25/25 tests pass.
+- 2026-04-26 — `feat(demo): AIR-050 — annotated CLI demo runner` (`npm run demo`) — Nick (Claude). Closes AIR-050.
+- 2026-04-26 — `pitch.md` rewritten on Problem → Insight → Wedge framing; L0–L5 ladder migrated to `docs/policy-rules.md` § 2.1 — Nick (with secondary agent). Closes AIR-043.
+- 2026-04-26 — `feat(g2): AIR-070 — SDK alignment audit + plugin modularity refactor` — Nick (Claude). New `docs/g2-alignment.md`, `EventSourceAdapter` + `CueRenderer` interfaces, stub `EvenG2BridgeAdapter` / `EvenG2CueRenderer` / `MockCalendarAdapter` / `MockCueRenderer`, `tests/adapters.test.ts`. 30/30 tests pass. Inline G2 alignment notes added to `glasses-cue-copy.md`, `flow-consentful-action.md`, `privacy-model.md`, `demo-script.md`, `context-schema.md`. Closes AIR-070.
+- 2026-04-26 — `docs: pitch deck (AIR-042)` — Marp-compatible 10-slide deck at `docs/pitch-deck.md` with speaker notes per slide. Closes AIR-042.
 
 ---
 

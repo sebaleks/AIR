@@ -35,13 +35,16 @@ type ContextEventKind =
 
 type ContextSource =
   | "calendar" | "location" | "voice"
-  | "device_sensor" | "messaging" | "manual";
+  | "device_sensor" | "messaging" | "manual"
+  | "even_g2" | "mock_calendar"   // adapter IDs from src/adapters/
+  | "memory";                     // synthetic kind: "memory_resurfaced"
 ```
 
 **Conventions:**
 - `payload` is event-kind-specific; document keys in code via discriminated unions.
 - `confidence` is what *the source* claims (e.g. speech-to-text's transcription confidence). It is *not* the agent's confidence in salience — that's separate.
 - `privacy_risk` is the *category-level* sensitivity of the data (location > voice > calendar metadata). Per-event overrides are possible (e.g., a voice mention near a known sensitive person).
+- For `kind: "voice_mention"`, `payload.transcript: string` is **populated by the ingesting adapter** (e.g., `EvenG2BridgeAdapter`), not by the user. Raw audio frames are not exposed to the engine — see `docs/g2-alignment.md` § "Audio".
 
 **Diff from baseline:** baseline has `kind: string` (un-typed), no `user_id`. Tighten when AIR-022 lands.
 

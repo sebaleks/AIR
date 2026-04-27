@@ -24,7 +24,7 @@ These are commitments, not aspirations. If a feature in `src/` violates one, it'
 |---|---|---|
 | Calendar metadata (event title, time, attendees) | Read on-demand from local mock | OAuth-scoped, on-device cache, opt-in per calendar |
 | Location | Geofence boundaries only (e.g., "home"/"office") — no raw lat/long | On-device only, never uploaded |
-| Voice mentions | One-shot transcription of explicit utterances (e.g., "remember to…") — no continuous capture | On-device wake-word + ephemeral STT, drop audio after transcription |
+| Voice mentions | One-shot transcription of explicit utterances (e.g., "remember to…") — no continuous capture. Implementation: `EvenG2BridgeAdapter` opens `audioControl` for raw 16 kHz PCM, app-side STT (e.g., Whisper) produces the transcript, raw audio frames are dropped before the `voice_mention` event reaches the engine. | On-device wake-word + ephemeral STT, drop audio after transcription |
 | Messaging context | Read recipient name + message metadata, not message body | Scoped per app, body access requires per-event consent |
 | Biometric (heart rate, etc.) | **Not collected** | Scoped opt-in, never used for routing without explicit category enable |
 | Camera / image | **Not collected** (G2 has no camera; pitch positioning is mic-first) | N/A for G2 platform |
@@ -35,7 +35,7 @@ These are commitments, not aspirations. If a feature in `src/` violates one, it'
 
 ## 3. Retention
 
-For the hackathon prototype, retention is **session-bounded** (process restart = forget). For a real product, the per-category retention table:
+For the hackathon prototype, retention is **session-bounded** (process restart = forget). The Even G2 SDK exposes a plain key/value `setLocalStorage` / `getLocalStorage` API with no native TTL or category controls; **per-record expiry, category windows, and audit-log enforcement live in app code on top of the KV store** (see `MemoryStore.persist()` / `restore()` patterns in `docs/g2-alignment.md` § Storage). For a real product, the per-category retention table:
 
 | Category | Default retention | Notes |
 |---|---|---|

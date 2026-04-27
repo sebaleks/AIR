@@ -67,6 +67,8 @@ The demo runner replays the simulated day at 60× speed: 1 simulated minute = 1 
 
 ### Scene 3 — Why this cue? (0:35 – 0:50)
 
+> **G2 implementation note:** the "Why this cue?" panel is *not* a separate page — it's a second text container on the same page as the cue, surfaced via a `SCROLL_TOP_EVENT` on the cue's event-capture container. Single page, two containers, one event capture target. See `docs/g2-alignment.md` § "Display & UI".
+
 **On-screen:** A finger taps the cue from Scene 2 in a settings-style overlay. The "Why this cue?" panel opens, showing:
 
 ```
